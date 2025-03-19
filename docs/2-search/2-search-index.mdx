@@ -4,9 +4,9 @@ To start using Atlas Search, you must configure a search index on your database.
 
 ## Step-by-step guide to creating your first Atlas Search index
 
-Open the **Database Deployments** page in MongoDB Atlas and select **Create Index** in the lower right corner.
+Open the **Clusters** page in MongoDB Atlas and select **Create Index** in the lower right corner under your cluster.
 
-<Screenshot alt="The 'Database Deployments' page with the 'Create Index' link highlighted" src="img/screenshots/2-search/2-search-index/1-create-index.png" url="https://cloud.mongodb.com" />
+<Screenshot alt="The 'Clusters' page with the 'Create Index' link highlighted" src="img/screenshots/2-search/2-search-index/1-create-index.png" url="https://cloud.mongodb.com" />
 
 Click the **Create Search Index** button.
 
@@ -22,7 +22,7 @@ Next, you need to select a name and data source for your index. Change the name 
 
 The final step allows you to review the index configuration and refine it if needed. You may also see the JSON that was generated from your configuration by clicking **View JSON**.
 
-    ```JSON
+    ```JavaScript
     {
         "mappings": {
             "dynamic": true
