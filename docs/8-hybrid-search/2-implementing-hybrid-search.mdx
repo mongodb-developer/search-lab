@@ -159,9 +159,9 @@ Replace the `searchBooks` function in `books.ts`:
 
 ```js
     public async searchBooks(query: string): Promise<Book[]> {
-        const VECTOR_WEIGHT = 0.5;
-        const FULL_TEXT_WEIGHT = 0.5;
-        const SEARCH_LIMIT = 5
+        const VECTOR_WEIGHT = 0.6;
+        const FULL_TEXT_WEIGHT = 0.4;
+        const SEARCH_LIMIT = 6
 
         //run full text search and vector search separately
         const [fts_results,vs_results] = await Promise.all([
