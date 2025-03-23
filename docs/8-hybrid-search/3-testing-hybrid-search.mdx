@@ -84,9 +84,9 @@ Here's the complete code snippet to implement a hybrid search against the books 
     }
 
     public async searchBooks(query: string): Promise<Book[]> {
-        const VECTOR_WEIGHT = 0.4;
-        const FULL_TEXT_WEIGHT = 0.6;
-        const SEARCH_LIMIT = 5
+        const VECTOR_WEIGHT = 0.6;
+        const FULL_TEXT_WEIGHT = 0.4;
+        const SEARCH_LIMIT = 6
 
         //run full text search and vector search separately
         const [fts_results,vs_results] = await Promise.all([
@@ -121,50 +121,53 @@ Here's the complete code snippet to implement a hybrid search against the books 
 </details>
 
 You can observe the effect of hybrid search on the search results by tuning the **VECTOR_WEIGHT** and **FULL_TEXT_WEIGHT**.
-Lets use the search term ***basketball*** and compare the results. Note that your results may look different as we may periodically make changes to the dataaset.
+Lets use the search term ***basketball*** and compare the results. Note that your results may look different as we may periodically make changes to the dataset.
 
 Lets start with setting `VECTOR_WEIGHT=0` and `FULL_TEXT_WEIGHT=1` i.e. the results will be based on 100% full-text search.
 
 <details>
-<summary>Here are the top 5 titles:</summary>
+<summary>Here are the top 6 titles:</summary>
 <div>
 1. The New York Knicks Basketball Team (Great Sports Teams)
 2. In the Land of Giants: My Life in Basketball
 3. Venus to the Hoop: A Gold Medal Year in Women's Basketball
 4. Night Hoops
 5. Cat (Fear Street Series #45)
+6. NBA: The Official Fan's Guide
 </div>
 </details>
 
 Now, lets set `VECTOR_WEIGHT=1` and `FULL_TEXT_WEIGHT=0` i.e. the results will be based on 100% vector search.
 
 <details>
-<summary>Here are the top 5 titles:</summary>
+<summary>Here are the top 6 titles:</summary>
 <div>
 1. NBA: The Official Fan's Guide
 2. In the Land of Giants: My Life in Basketball
 3. Night Hoops
 4. Venus to the Hoop: A Gold Medal Year in Women's Basketball
-5. The Big Three
+5. The New York Knicks Basketball Team (Great Sports Teams)
+6. The Big Three
 </div>
 </details>
 
-Finally, lets set `VECTOR_WEIGHT=0.5` and `FULL_TEXT_WEIGHT=0.5` i.e. we are placing equal empahasis on full-text search and vector search.
+Finally, lets set `VECTOR_WEIGHT=0.6` and `FULL_TEXT_WEIGHT=0.4` i.e. we are placing equal empahasis on full-text search and vector search.
 
 <details>
-<summary>Here are the top 5 titles:</summary>
+<summary>Here are the top 6 titles:</summary>
 <div>
 1. In the Land of Giants: My Life in Basketball
-2. Venus to the Hoop: A Gold Medal Year in Women's Basketball
-3. Night Hoops
-4. The New York Knicks Basketball Team (Great Sports Teams)
-5. NBA: The Official Fan's Guide
+2. NBA: The Official Fan's Guide
+3. The New York Knicks Basketball Team (Great Sports Teams)
+4. Night Hoops
+5. Venus to the Hoop: A Gold Medal Year in Women's
+6. The Big Three
 </div>
 </details>
 
 **Key observations:**
 1. From the full-text search result, **Cat (Fear Street Series #45)** can be seen as a false positive because it may have little to do with basketball but it is only there because the synopsis contains the word **basketball**.
-2. From the vector search result, **The Big Three** made it to the top 5 because it showed a few basketball players on its cover image, but this title was missed in the full-text search because neither the title nor the synopsis contains the word **basketball**.
+2. From the vector search result, **The Big Three** made it to the top 6 because it showed a few basketball players on its cover image, but this title was missed in the full-text search because neither the title nor the synopsis contains the word **basketball**.
 3. From the hybrid search result, titles that made it to both types of search were ranked higher
 
 
