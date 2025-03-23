@@ -1,0 +1,78 @@
+# 🦸‍♂️ Vector quantization
+
+Vector quantization is a technique to reduce the number of bits required to represent a vector. This can help vastly improve vector search performance.
+
+However, before you enable quantization, note the following:
+
+1. Note the current vector search index size. You may do so via the Atlas UI.
+2. In the `searchBooks` function, add a couple of lines of code to log the executionStats. Your `searchBooks` function should look like the following:
+
+<details>
+<summary>Click to expand</summary>
+<div>
+
+```javascript
+public async searchBooks(query: string): Promise<Book[]> {
+  const vector = await getEmbeddings(query);
+  const aggregationPipeline = [
+    {
+      $vectorSearch: {
+        queryVector:  vector,
+        path: 'embeddings',
+        numCandidates: 100,
+        index: 'vectorsearch',
+        limit: 10,
+      }
+    }
+  ];
+  //log executionStats
+  const result = await collections?.books?.aggregate(pipeline).explain();
+  console.log(result)
+  //-----------------
+  const books = await collections?.books?.aggregate(aggregationPipeline).toArray() as Book[];
+  return books;
+}
+```
+
+</div>
+</details>
+
+Type a search term e.g. ***basketball*** and observe the logs, in particular, note the `executionTimeMillisEstimate`.
+
+## Enabling quantization
+
+To enable vector auto-quantization on your embeddings, simply set the `quantization` field to one of the supported quantization types (`scalar` or `binary`) in the vector search index definition.
+
+You can edit your vector search index definition to the following:
+
+<details>
+<summary>Click to expand</summary>
+<div>
+
+```json
+{
+  "fields": [
+    {
+      "numDimensions": 1408,
+      "path": "embeddings",
+      "quantization": "scalar",
+      "similarity": "cosine",
+      "type": "vector"
+    }
+    //...
+  ]
+}
+```
+
+</div>
+</details>
+
+Now run the same search term and note the `executionTimeMillisEstimate` again. The execution time should be significantly faster.
+
+:::info
+Notice the slight increase in the size of the vector search index upon enabling quantization. This is because full-fidelity vectors are also stored on disk for re-scoring and/or exact nearest neighbors (ENN) search.
+
+In the Atlas UI, the entire index size is displayed, which might be larger than the original index size, since Atlas does not show a break down of the data structures within an index that are stored in RAM and on disk.
+
+The Atlas Search metrics however will show a much smaller index that is held in memory when you enable automatic quantization. Refer to our [documentation](https://deploy-preview-6486--cloud-docs.netlify.app/atlas-vector-search/deployment-options/#storage-requirements-for-vectors) to learn more about these considerations.
+:::
