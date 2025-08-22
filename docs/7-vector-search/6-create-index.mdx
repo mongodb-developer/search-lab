@@ -1,5 +1,3 @@
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
 import Screenshot from "../../src/components/Screenshot";
 
 # 👐 Create Vector Search Indexes
@@ -23,9 +21,6 @@ This time, you will use the **JSON Editor** to create your index, select that op
 
 Add the following code in the JSON editor:
 
-<Tabs groupId="aiproviders">
-  <TabItem value="serverless" label="Serverless Endpoint" default>
-
 ```js
 {
   "fields":[
@@ -38,40 +33,5 @@ Add the following code in the JSON editor:
   ]
 }
 ```
-
-  </TabItem>
-  <TabItem value="openai" label="OpenAI" default>
-
-```js
-{
-  "fields":[
-    {
-      "type": "vector",
-      "path": "embeddings",
-      "numDimensions": 1536,
-      "similarity": "cosine"
-    }
-  ]
-}
-```
-
-  </TabItem>
-  <TabItem value="googleVertex" label="Google Cloud Vertex AI">
-
-```js
-{
-  "fields":[
-    {
-      "type": "vector",
-      "path": "embeddings",
-      "numDimensions": 1408,
-      "similarity": "cosine"
-    }
-  ]
-}
-```
-
-  </TabItem>
-</Tabs>
 
 The final step allows you to review the index configuration and refine it, if needed. Go ahead and click **Create Vector Search Index**.
