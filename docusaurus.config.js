@@ -126,9 +126,13 @@ const config = {
       }),
     ],
   ],
-  plugins: [[require.resolve("docusaurus-lunr-search"), {
-      languages: ['en', 'zh'] // language codes
-    }]
+  plugins: [
+    [
+      require.resolve("docusaurus-lunr-search"),
+      {
+        languages: ["en"], // language codes
+      },
+    ],
   ],
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
@@ -172,6 +176,34 @@ const config = {
         additionalLanguages: ["powershell", "swift", "kotlin"],
       },
     }),
+  future: {
+    v4: {
+      removeLegacyPostBuildHeadAttribute: true,
+      useCssCascadeLayers: true,
+    },
+    experimental_faster: {
+      swcJsLoader: true,
+      swcJsMinimizer: true,
+      swcHtmlMinimizer: true,
+      lightningCssMinimizer: true,
+      rspackBundler: true,
+      rspackPersistentCache: true,
+      ssgWorkerThreads: true,
+      mdxCrossCompilerCache: true,
+    },
+    experimental_storage: {
+      type: "localStorage",
+      namespace: true,
+    },
+    // this should be commented out as we're generating a static site and serving it through GitHub Pages
+    // See: https://docusaurus.io/blog/releases/3.4#hash-router---experimental
+    // > This mode is not recommended for sites deployed through a web server.
+    // experimental_router: "hash",
+  },
+  markdown: {
+    mermaid: true,
+  },
+  themes: ["@docusaurus/theme-mermaid"],
 };
 
 module.exports = config;
