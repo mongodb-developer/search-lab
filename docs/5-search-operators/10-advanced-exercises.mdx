@@ -1,3 +1,6 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 # 🦸 Advanced Exercises
 
 :::info
@@ -11,6 +14,9 @@ You've noticed that readers tend to prefer shorter books. Without using a large 
 :::tip
 Even without a score adjuster, the [`should`](https://www.mongodb.com/docs/atlas/atlas-search/compound/#mongodb-data-should) operator will still boost the score of the documents that match it.
 :::
+
+<Tabs groupId="server">
+<TabItem value="node" label="🚀 NodeJS/Express">
 
 <details>
   <summary>Answer</summary>
@@ -61,6 +67,37 @@ public async searchBooks(query: string): Promise<Book[]> {
 ```
 </div>
 </details>
+</TabItem>
+
+<TabItem value="java" label="☕️ Java Spring Boot">
+<details>
+  <summary>Answer</summary>
+  <div>
+```java title='src/main/java/com/mongodb/devrel/library/domain/service/BookService.java'
+public List<Book> searchBooks(String theTerm) {
+        AggregationOperation searchStage = context -> new Document("$search",
+            new Document("index", "fulltextsearch")
+                    .append("compound", new Document("must", List.of(
+                            new Document("text", new Document("query", theTerm)
+                                    .append("path", List.of("title", "authors.name", "genres"))
+                                    .append("fuzzy", new Document("maxEdits", 2L)))
+                    )).append("should", List.of(
+                            new Document("equals", new Document("value", true)
+                                    .append("path", "bookOfTheMonth")
+                                    .append("score", new Document("boost", new Document("value", 10L)))),
+                            new Document("range", new Document("path", "pages").append("lt", 80L)))
+                    ))
+        );
+
+        Aggregation aggregation = Aggregation.newAggregation(searchStage);
+        return mongoTemplate.aggregate(aggregation, "books", Book.class).getMappedResults();
+    }
+```
+    </div>
+</details>
+</TabItem>
+
+</Tabs>
 
 Choose your favorite method to build aggregation pipelines and try to solve the following exercises.
 
