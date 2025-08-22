@@ -1,10 +1,14 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 # 👐 Add Full-text Search to Your Application
 
 So far, you've seen how to use the search indexes in the aggregation pipeline builder or Compass. But what if you want to use the search index in your application?
 
 To do so, you will need to add some code to your application.
 
-## Using aggregation pipelines in Node.js
+<Tabs groupId="server">
+<TabItem value="node" label="🚀 NodeJS/Express">
 
 To use the aggregation pipeline in Node.js, you will need to use the `aggregate` method on the collection object. This method takes an array of stages as an argument and returns a cursor. You can then use the cursor to iterate over the results or use the `toArray` method to get the results in an array.
 
@@ -56,4 +60,50 @@ public async searchBooks(query: string): Promise<Book[]> {
 </div>
 </details>
 
-Play around the application, and look at the results you're getting. You should see that the results are more relevant than before.
+</TabItem>
+<TabItem value="java" label="☕️ Java Spring Boot">
+To use the aggregation pipeline in Java with Spring Data MongoDB, you can build your search stage using the $search operator and then create an Aggregation. Finally, run the aggregation with MongoTemplate.aggregate, mapping the results directly to your domain class.
+
+## Adding search to the library app 
+
+Open the `BookService` class in your Java project and look for the `searchBooks` method.
+
+Right now, it uses a repository method with a simple text search:
+
+```java title='src/main/java/com/mongodb/devrel/library/domain/service/BookService.java'
+    public List<Book> searchBooks(String theTerm) {
+        PageRequest request = PageRequest.of(0, 10, Sort.unsorted());
+        return bookRepository.searchByText(theTerm, request);
+    }
+```
+
+While this code works to some extent, it is not optimal. As the dataset grows, performance will degrade because the search is not using the dedicated Atlas Search index. It also limits the query to very basic text matching. Change this method to use the **$search** stage in the aggregation pipeline instead.
+Your search should cover:
+
+- the `title`
+- the `authors.name`
+- the `genres` array
+
+Use the aggregation code you saw earlier to build the `$search` stage and run it with `MongoTemplate.aggregate`.
+
+<details>
+<summary>Click here to see the answer</summary>
+<div>
+
+```java title='src/main/java/com/mongodb/devrel/library/domain/service/BookService.java'
+public List<Book> searchBooks(String theTerm) {
+    AggregationOperation searchStage = context -> new Document("$search",
+      new Document("index", "fulltextsearch")
+              .append("text", new Document("query", theTerm)
+              .append("path", Arrays.asList("title", "authors.name", "genres")))
+    );
+    Aggregation aggregation = Aggregation.newAggregation(searchStage);
+
+    return mongoTemplate.aggregate(aggregation, "books", Book.class).getMappedResults();
+}
+```
+</div>
+</details>
+</TabItem>
+
+</Tabs>
