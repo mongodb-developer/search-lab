@@ -1,3 +1,5 @@
+[![.github/workflows/deploy.yml](https://github.com/mongodb-developer/search-lab/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/mongodb-developer/search-lab/actions/workflows/deploy.yml)
+
 # Developer Days Search Lab
 
 This is the Search Lab used during Developer Days that covers using Atlas Search and Vector Search
