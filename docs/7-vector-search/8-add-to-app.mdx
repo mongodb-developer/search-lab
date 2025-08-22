@@ -1,26 +1,10 @@
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
-
 # 👐 Add Semantic Search to Your Application
 
 You now know everything you need to add vector search capabilities to your application.
 
-## Configuring the environment variables
-
-In your `server/.env` [file](https://github.com/mongodb-developer/library-management-system/blob/main/server/.env), you'll find a few variables that you can use to configure the application. Add a couple more at the end of the file to configure the embeddings source and the API key.
-
-```json
-EMBEDDINGS_SOURCE=serverlessEndpoint
-EMBEDDING_KEY=<API Key>
-```
-
-:::tip
-Your instructor will provide you with an API key that you can use for the event you're attending. Set it in the `EMBEDDING_KEY` variable.
-:::
-
 ## Configuring the vector search query
 
-Open up the code from the server [file](https://github.com/mongodb-developer/library-management-system/blob/main/server/src/controllers/books.ts) `server/src/controllers/books.ts` once more, and edit the `searchBooks` method to query your data for semantic search.
+Open up the `BookController` in **server/src/controllers/books.ts** once more, and edit the `searchBooks` method to query your data for semantic search.
 
 :::tip
 Use the `getEmbeddings` function to convert the query into a vector.
