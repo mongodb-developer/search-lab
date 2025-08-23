@@ -53,20 +53,20 @@ Use the `embeddingProvider.getEmbeddings` method to convert the query into a vec
 <div>
 ```java title='src/main/java/com/mongodb/devrel/library/domain/service/BookService.java'
 public List<Book> searchBooks(String theTerm) {
-        List<Double> vector = embeddingProvider.getEmbeddings(theTerm);
+    List<Double> vector = embeddingProvider.getEmbeddings(theTerm);
 
-        AggregationOperation searchStage = context ->
-                new Document("$vectorSearch",
-                        new Document("index", "vectorsearch")
-                                .append("path", "embeddings")
-                                .append("queryVector", vector)
-                                .append("numCandidates", 100)
-                                .append("limit", 10)
-                );
+    AggregationOperation searchStage = context ->
+            new Document("$vectorSearch",
+                    new Document("index", "vectorsearch")
+                            .append("path", "embeddings")
+                            .append("queryVector", vector)
+                            .append("numCandidates", 100)
+                            .append("limit", 10)
+     );
 
-        Aggregation aggregation = Aggregation.newAggregation(searchStage);
-        return mongoTemplate.aggregate(aggregation, "books", Book.class).getMappedResults();
-    }
+    Aggregation aggregation = Aggregation.newAggregation(searchStage);
+    return mongoTemplate.aggregate(aggregation, "books", Book.class).getMappedResults();
+}
 ```
 </div>
 </details>

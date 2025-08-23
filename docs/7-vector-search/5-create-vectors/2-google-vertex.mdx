@@ -195,7 +195,7 @@ To run semantic queries in Java, the application also needs to generate embeddin
 This is handled by the [`EmbeddingProvider`](https://github.com/mongodb-developer/library-management-system/blob/java-server/java-server/src/main/java/com/mongodb/devrel/library/domain/provider/EmbeddingProvider.java) interface.
 
 For Google Vertex AI, the implementation is [`VertexEmbeddingProvider`](https://github.com/mongodb-developer/library-management-system/blob/java-server/java-server/src/main/java/com/mongodb/devrel/library/infrastructure/provider/VertexEmbeddingProvider.java), which delegates the HTTP call to the Feign client:
-```java title='src/main/java/com/mongodb/devrel/library/infrastructure.embeddings.vertex/VertexEmbeddingClient.java'
+```java title='src/main/java/com/mongodb/devrel/library/infrastructure/embeddings/vertex/VertexEmbeddingClient.java'
 @FeignClient(
         name = "vertex-embeddings",
         url = "${vertex.base-url}"

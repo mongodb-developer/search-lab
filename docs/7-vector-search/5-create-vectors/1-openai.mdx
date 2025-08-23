@@ -114,7 +114,7 @@ To run semantic queries in Java, the application also needs to generate embeddin
 This is handled by the [`EmbeddingProvider`](https://github.com/mongodb-developer/library-management-system/blob/java-server/java-server/src/main/java/com/mongodb/devrel/library/domain/provider/EmbeddingProvider.java) interface.   For OpenAI, the implementation is [`OpenAIEmbeddingProvider`](https://github.com/mongodb-developer/library-management-system/blob/java-server/java-server/src/main/java/com/mongodb/devrel/library/infrastructure/provider/OpenAIEmbeddingProvider.java), which delegates the HTTP call to the Feign client:
 
 
-```java title='src/main/java/com/mongodb/devrel/library/infrastructure.embeddings.openai/OpenAIEmbeddingClient.java'
+```java title='src/main/java/com/mongodb/devrel/library/infrastructure/embeddings/openai/OpenAIEmbeddingClient.java'
 @FeignClient(
     name = "openai-embeddings",
     url = "${openai.base-url}",
