@@ -1,3 +1,6 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 # 🦸‍♂️ Testing the Hybrid Search
 
 :::info
@@ -5,6 +8,9 @@ Extra activity, do it if you have extra time or are following at home, won't be 
 :::
 
 Here's the complete code snippet to implement a hybrid search against the books collection.
+
+<Tabs groupId="server">
+<TabItem value="node" label="🚀 NodeJS/Express">
 
 <details>
 <summary>See complete code</summary>
@@ -119,6 +125,115 @@ Here's the complete code snippet to implement a hybrid search against the books 
 ```
 </div>
 </details>
+</TabItem>
+<TabItem value="java" label="☕️ Java Spring Boot">
+
+<details>
+<summary>See complete code</summary>
+<div>
+
+```java title='src/main/java/com/mongodb/devrel/library/domain/service/BookService.java'
+private List<BookWithScore> computeWeightedRRF(List<Book> books, double weight) {
+        final int RANK_CONSTANT = 60;
+        List<BookWithScore> scoredBooks = new ArrayList<>();
+
+        for (int i = 0; i < books.size(); i++) {
+            Book book = books.get(i);
+            double score = weight * (1.0 / (i + RANK_CONSTANT));
+            scoredBooks.add(new BookWithScore(book, score));
+        }
+
+        return scoredBooks;
+    }
+
+    public List<Book> fullTextSearch(String query, int limit) {
+        AggregationOperation searchStage = context -> new Document("$search",
+                new Document("index", "fulltextsearch")
+                        .append("compound",
+                                new Document("should", Arrays.asList(
+                                        new Document("text",
+                                                new Document("query", query)
+                                                        .append("path", "title")
+                                                        .append("score", new Document("boost", new Document("value", 3L)))),
+                                        new Document("text",
+                                                new Document("query", query)
+                                                        .append("path", "synopsis")
+                                                        .append("score", new Document("boost", new Document("value", 2L)))),
+                                        new Document("text",
+                                                new Document("query", query)
+                                                        .append("path", "authors.name")
+                                                        .append("score", new Document("boost", new Document("value", 2L))))
+                                ))
+                        )
+        );
+        AggregationOperation limitStage = context -> new Document("$limit", limit);
+        AggregationOperation projectStage = context -> new Document("$project",
+                new Document("title", 1L)
+                        .append("authors", 1L)
+                        .append("synopsis", 1L)
+                        .append("cover", 1L)
+        );
+        Aggregation aggregation = Aggregation.newAggregation(searchStage, limitStage, projectStage);
+        return mongoTemplate.aggregate(aggregation, "books", Book.class).getMappedResults();
+    }
+
+    public List<Book> vectorSearch(String query, int limit) {
+        List<Double> vector = embeddingProvider.getEmbeddings(query);
+
+        AggregationOperation searchStage = context ->
+                new Document("$vectorSearch",
+                        new Document("index", "vectorsearch")
+                                .append("path", "embeddings")
+                                .append("queryVector", vector)
+                                .append("numCandidates", 100)
+                                .append("limit", limit)
+                );
+
+        AggregationOperation projectStage = context ->
+                new Document("$project",
+                        new Document("title", 1L)
+                                .append("authors", 1L)
+                                .append("synopsis", 1L)
+                                .append("cover", 1L)
+                );
+
+        Aggregation aggregation = Aggregation.newAggregation(searchStage, projectStage);
+
+        return mongoTemplate.aggregate(aggregation, "books", Book.class).getMappedResults();
+    }
+
+    public List<Book> searchBooks(String theTerm) {
+        final double VECTOR_WEIGHT = 0.6;
+        final double FULL_TEXT_WEIGHT = 0.4;
+        final int SEARCH_LIMIT = 6;
+
+        List<Book> ftsResults = fullTextSearch(theTerm, SEARCH_LIMIT);
+        List<Book> vsResults = vectorSearch(theTerm, SEARCH_LIMIT);
+
+        List<BookWithScore> scoredFts = computeWeightedRRF(ftsResults, FULL_TEXT_WEIGHT);
+        List<BookWithScore> scoredVs = computeWeightedRRF(vsResults, VECTOR_WEIGHT);
+
+        Map<String, Double> scoreMap = new HashMap<>();
+        Map<String, Book> bookMap = new HashMap<>();
+
+        Stream.concat(scoredFts.stream(), scoredVs.stream())
+                .forEach(bws -> {
+                    String id = bws.book().id();
+                    bookMap.putIfAbsent(id, bws.book());
+                    scoreMap.merge(id, bws.score(), Double::sum);
+                });
+
+        return scoreMap.entrySet().stream()
+                .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
+                .limit(SEARCH_LIMIT)
+                .map(entry -> bookMap.get(entry.getKey()))
+                .toList();
+    }
+```
+</div>
+</details>
+</TabItem>
+</Tabs>
 
 You can observe the effect of hybrid search on the search results by tuning the **VECTOR_WEIGHT** and **FULL_TEXT_WEIGHT**.
 Lets use the search term ***basketball*** and compare the results. Note that your results may look different as we may periodically make changes to the dataset.
