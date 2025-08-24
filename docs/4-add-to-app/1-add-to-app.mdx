@@ -62,7 +62,7 @@ public async searchBooks(query: string): Promise<Book[]> {
 
 </TabItem>
 <TabItem value="java" label="☕️ Java Spring Boot">
-To use the aggregation pipeline in Java with Spring Data MongoDB, you can build your search stage using the $search operator and then create an Aggregation. Finally, run the aggregation with MongoTemplate.aggregate, mapping the results directly to your domain class.
+To use the aggregation pipeline in Java, you can build your search stage using the `$search` operator and then create an Aggregation. Finally, run the aggregation with MongoTemplate.aggregate, mapping the results directly to your domain class.
 
 ## Adding search to the library app 
 
@@ -70,7 +70,7 @@ Open the `BookService` class in your Java project and look for the `searchBooks`
 
 Right now, it uses a repository method with a simple text search:
 
-```java title='src/main/java/com/mongodb/devrel/library/domain/service/BookService.java'
+```java title='java-server/src/main/java/com/mongodb/devrel/library/domain/service/BookService.java'
     public List<Book> searchBooks(String theTerm) {
         PageRequest request = PageRequest.of(0, 10, Sort.unsorted());
         return bookRepository.searchByText(theTerm, request);
