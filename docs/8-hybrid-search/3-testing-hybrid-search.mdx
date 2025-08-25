@@ -134,101 +134,101 @@ Here's the complete code snippet to implement a hybrid search against the books 
 
 ```java title='src/main/java/com/mongodb/devrel/library/domain/service/BookService.java'
 private List<BookWithScore> computeWeightedRRF(List<Book> books, double weight) {
-        final int RANK_CONSTANT = 60;
-        List<BookWithScore> scoredBooks = new ArrayList<>();
+    final int RANK_CONSTANT = 60;
+    List<BookWithScore> scoredBooks = new ArrayList<>();
 
-        for (int i = 0; i < books.size(); i++) {
-            Book book = books.get(i);
-            double score = weight * (1.0 / (i + RANK_CONSTANT));
-            scoredBooks.add(new BookWithScore(book, score));
-        }
-
-        return scoredBooks;
+    for (int i = 0; i < books.size(); i++) {
+        Book book = books.get(i);
+        double score = weight * (1.0 / (i + RANK_CONSTANT));
+        scoredBooks.add(new BookWithScore(book, score));
     }
 
-    public List<Book> fullTextSearch(String query, int limit) {
-        AggregationOperation searchStage = context -> new Document("$search",
-                new Document("index", "fulltextsearch")
-                        .append("compound",
-                                new Document("should", Arrays.asList(
-                                        new Document("text",
-                                                new Document("query", query)
-                                                        .append("path", "title")
-                                                        .append("score", new Document("boost", new Document("value", 3L)))),
-                                        new Document("text",
-                                                new Document("query", query)
-                                                        .append("path", "synopsis")
-                                                        .append("score", new Document("boost", new Document("value", 2L)))),
-                                        new Document("text",
-                                                new Document("query", query)
-                                                        .append("path", "authors.name")
-                                                        .append("score", new Document("boost", new Document("value", 2L))))
-                                ))
-                        )
-        );
-        AggregationOperation limitStage = context -> new Document("$limit", limit);
-        AggregationOperation projectStage = context -> new Document("$project",
-                new Document("title", 1L)
-                        .append("authors", 1L)
-                        .append("synopsis", 1L)
-                        .append("cover", 1L)
-        );
-        Aggregation aggregation = Aggregation.newAggregation(searchStage, limitStage, projectStage);
-        return mongoTemplate.aggregate(aggregation, "books", Book.class).getMappedResults();
-    }
+    return scoredBooks;
+}
 
-    public List<Book> vectorSearch(String query, int limit) {
-        List<Double> vector = embeddingProvider.getEmbeddings(query);
+public List<Book> fullTextSearch(String query, int limit) {
+    AggregationOperation searchStage = context -> new Document("$search",
+            new Document("index", "fulltextsearch")
+                    .append("compound",
+                            new Document("should", Arrays.asList(
+                                    new Document("text",
+                                            new Document("query", query)
+                                                    .append("path", "title")
+                                                    .append("score", new Document("boost", new Document("value", 3L)))),
+                                    new Document("text",
+                                            new Document("query", query)
+                                                    .append("path", "synopsis")
+                                                    .append("score", new Document("boost", new Document("value", 2L)))),
+                                    new Document("text",
+                                            new Document("query", query)
+                                                    .append("path", "authors.name")
+                                                    .append("score", new Document("boost", new Document("value", 2L))))
+                            ))
+                    )
+    );
+    AggregationOperation limitStage = context -> new Document("$limit", limit);
+    AggregationOperation projectStage = context -> new Document("$project",
+            new Document("title", 1L)
+                    .append("authors", 1L)
+                    .append("synopsis", 1L)
+                    .append("cover", 1L)
+    );
+    Aggregation aggregation = Aggregation.newAggregation(searchStage, limitStage, projectStage);
+    return mongoTemplate.aggregate(aggregation, "books", Book.class).getMappedResults();
+}
 
-        AggregationOperation searchStage = context ->
-                new Document("$vectorSearch",
-                        new Document("index", "vectorsearch")
-                                .append("path", "embeddings")
-                                .append("queryVector", vector)
-                                .append("numCandidates", 100)
-                                .append("limit", limit)
-                );
+public List<Book> vectorSearch(String query, int limit) {
+    List<Double> vector = embeddingProvider.getEmbeddings(query);
 
-        AggregationOperation projectStage = context ->
-                new Document("$project",
-                        new Document("title", 1L)
-                                .append("authors", 1L)
-                                .append("synopsis", 1L)
-                                .append("cover", 1L)
-                );
+    AggregationOperation searchStage = context ->
+            new Document("$vectorSearch",
+                    new Document("index", "vectorsearch")
+                            .append("path", "embeddings")
+                            .append("queryVector", vector)
+                            .append("numCandidates", 100)
+                            .append("limit", limit)
+            );
 
-        Aggregation aggregation = Aggregation.newAggregation(searchStage, projectStage);
+    AggregationOperation projectStage = context ->
+            new Document("$project",
+                    new Document("title", 1L)
+                            .append("authors", 1L)
+                            .append("synopsis", 1L)
+                            .append("cover", 1L)
+            );
 
-        return mongoTemplate.aggregate(aggregation, "books", Book.class).getMappedResults();
-    }
+    Aggregation aggregation = Aggregation.newAggregation(searchStage, projectStage);
 
-    public List<Book> searchBooks(String theTerm) {
-        final double VECTOR_WEIGHT = 0.6;
-        final double FULL_TEXT_WEIGHT = 0.4;
-        final int SEARCH_LIMIT = 6;
+    return mongoTemplate.aggregate(aggregation, "books", Book.class).getMappedResults();
+}
 
-        List<Book> ftsResults = fullTextSearch(theTerm, SEARCH_LIMIT);
-        List<Book> vsResults = vectorSearch(theTerm, SEARCH_LIMIT);
+public List<Book> searchBooks(String theTerm) {
+    final double VECTOR_WEIGHT = 0.6;
+    final double FULL_TEXT_WEIGHT = 0.4;
+    final int SEARCH_LIMIT = 6;
 
-        List<BookWithScore> scoredFts = computeWeightedRRF(ftsResults, FULL_TEXT_WEIGHT);
-        List<BookWithScore> scoredVs = computeWeightedRRF(vsResults, VECTOR_WEIGHT);
+    List<Book> ftsResults = fullTextSearch(theTerm, SEARCH_LIMIT);
+    List<Book> vsResults = vectorSearch(theTerm, SEARCH_LIMIT);
 
-        Map<String, Double> scoreMap = new HashMap<>();
-        Map<String, Book> bookMap = new HashMap<>();
+    List<BookWithScore> scoredFts = computeWeightedRRF(ftsResults, FULL_TEXT_WEIGHT);
+    List<BookWithScore> scoredVs = computeWeightedRRF(vsResults, VECTOR_WEIGHT);
 
-        Stream.concat(scoredFts.stream(), scoredVs.stream())
-                .forEach(bws -> {
-                    String id = bws.book().id();
-                    bookMap.putIfAbsent(id, bws.book());
-                    scoreMap.merge(id, bws.score(), Double::sum);
-                });
+    Map<String, Double> scoreMap = new HashMap<>();
+    Map<String, Book> bookMap = new HashMap<>();
 
-        return scoreMap.entrySet().stream()
-                .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
-                .limit(SEARCH_LIMIT)
-                .map(entry -> bookMap.get(entry.getKey()))
-                .toList();
-    }
+    Stream.concat(scoredFts.stream(), scoredVs.stream())
+            .forEach(bws -> {
+                String id = bws.book().id();
+                bookMap.putIfAbsent(id, bws.book());
+                scoreMap.merge(id, bws.score(), Double::sum);
+            });
+
+    return scoreMap.entrySet().stream()
+            .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
+            .limit(SEARCH_LIMIT)
+            .map(entry -> bookMap.get(entry.getKey()))
+            .toList();
+}
 ```
 </div>
 </details>

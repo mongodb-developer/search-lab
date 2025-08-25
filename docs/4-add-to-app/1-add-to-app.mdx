@@ -71,10 +71,10 @@ Open the `BookService` class in your Java project and look for the `searchBooks`
 Right now, it uses a repository method with a simple text search:
 
 ```java title='java-server/src/main/java/com/mongodb/devrel/library/domain/service/BookService.java'
-    public List<Book> searchBooks(String theTerm) {
-        PageRequest request = PageRequest.of(0, 10, Sort.unsorted());
-        return bookRepository.searchByText(theTerm, request);
-    }
+public List<Book> searchBooks(String theTerm) {
+    PageRequest request = PageRequest.of(0, 10, Sort.unsorted());
+    return bookRepository.searchByText(theTerm, request);
+}
 ```
 
 While this code works to some extent, it is not optimal. As the dataset grows, performance will degrade because the search is not using the dedicated Atlas Search index. It also limits the query to very basic text matching. Change this method to use the **$search** stage in the aggregation pipeline instead.

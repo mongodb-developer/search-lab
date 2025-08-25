@@ -190,29 +190,29 @@ and use the resulting vector to perform a `$vectorSearch` on the books collectio
 <div>
 ```java title='src/main/java/com/mongodb/devrel/library/domain/service/BookService.java'
 public List<Book> vectorSearch(String query, int limit) {
-        List<Double> vector = embeddingProvider.getEmbeddings(query);
+    List<Double> vector = embeddingProvider.getEmbeddings(query);
 
-        AggregationOperation searchStage = context ->
-                new Document("$vectorSearch",
-                        new Document("index", "vectorsearch")
-                                .append("path", "embeddings")
-                                .append("queryVector", vector)
-                                .append("numCandidates", 100)
-                                .append("limit", limit)
-                );
+    AggregationOperation searchStage = context ->
+            new Document("$vectorSearch",
+                    new Document("index", "vectorsearch")
+                            .append("path", "embeddings")
+                            .append("queryVector", vector)
+                            .append("numCandidates", 100)
+                            .append("limit", limit)
+            );
 
-        AggregationOperation projectStage = context ->
-                new Document("$project",
-                        new Document("title", 1L)
-                                .append("authors", 1L)
-                                .append("synopsis", 1L)
-                                .append("cover", 1L)
-                );
+    AggregationOperation projectStage = context ->
+            new Document("$project",
+                    new Document("title", 1L)
+                            .append("authors", 1L)
+                            .append("synopsis", 1L)
+                            .append("cover", 1L)
+            );
 
-        Aggregation aggregation = Aggregation.newAggregation(searchStage, projectStage);
+    Aggregation aggregation = Aggregation.newAggregation(searchStage, projectStage);
 
-        return mongoTemplate.aggregate(aggregation, "books", Book.class).getMappedResults();
-    }
+    return mongoTemplate.aggregate(aggregation, "books", Book.class).getMappedResults();
+}
 ```
 </div>
 </details>
@@ -267,7 +267,7 @@ First, create a new `BookWithScore` record:
 <summary>Answer</summary>
 <div>
 ```java title='src/main/java/com/mongodb/devrel/library/domain/model/BookWithScore.java'
-  public record BookWithScore(Book book, double score) {}
+public record BookWithScore(Book book, double score) {}
 ```
 </div>
 </details>

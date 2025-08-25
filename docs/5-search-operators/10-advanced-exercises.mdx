@@ -75,23 +75,23 @@ public async searchBooks(query: string): Promise<Book[]> {
   <div>
 ```java title='src/main/java/com/mongodb/devrel/library/domain/service/BookService.java'
 public List<Book> searchBooks(String theTerm) {
-        AggregationOperation searchStage = context -> new Document("$search",
-            new Document("index", "fulltextsearch")
-                    .append("compound", new Document("must", List.of(
-                            new Document("text", new Document("query", theTerm)
-                                    .append("path", List.of("title", "authors.name", "genres"))
-                                    .append("fuzzy", new Document("maxEdits", 2L)))
-                    )).append("should", List.of(
-                            new Document("equals", new Document("value", true)
-                                    .append("path", "bookOfTheMonth")
-                                    .append("score", new Document("boost", new Document("value", 10L)))),
-                            new Document("range", new Document("path", "pages").append("lt", 80L)))
-                    ))
-        );
+    AggregationOperation searchStage = context -> new Document("$search",
+        new Document("index", "fulltextsearch")
+                .append("compound", new Document("must", List.of(
+                        new Document("text", new Document("query", theTerm)
+                                .append("path", List.of("title", "authors.name", "genres"))
+                                .append("fuzzy", new Document("maxEdits", 2L)))
+                )).append("should", List.of(
+                        new Document("equals", new Document("value", true)
+                                .append("path", "bookOfTheMonth")
+                                .append("score", new Document("boost", new Document("value", 10L)))),
+                        new Document("range", new Document("path", "pages").append("lt", 80L)))
+                ))
+    );
 
-        Aggregation aggregation = Aggregation.newAggregation(searchStage);
-        return mongoTemplate.aggregate(aggregation, "books", Book.class).getMappedResults();
-    }
+    Aggregation aggregation = Aggregation.newAggregation(searchStage);
+    return mongoTemplate.aggregate(aggregation, "books", Book.class).getMappedResults();
+}
 ```
     </div>
 </details>
