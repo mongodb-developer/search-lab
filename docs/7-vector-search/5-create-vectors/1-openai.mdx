@@ -1,3 +1,6 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 # Using OpenAI
 
 :::info
@@ -59,11 +62,15 @@ You can find the 1586 dimensions vector in the `embeddings` field of the books.
 
 Because we already have the vectors for the books, we can use them with Vector Search.
 
-## Querying with vectors
+## Querying with vectors 
 
 To query the data, Vector Search will need to calculate the distance between the query vector and the vectors of the documents in the collection.
 
 To do so, you will need to vectorize your query. You can use the same function to vectorize your query, as well.
+
+
+<Tabs groupId="server">
+<TabItem value="node" label="🚀 NodeJS/Express">
 
 In the library application, we've created a function that will vectorize your query for you. You can find it in the `server/src/embeddings/openai.ts` file.
 
@@ -100,3 +107,59 @@ Now that you have an OpenAI API key, you can set the `EMBEDDING_KEY` variable to
 EMBEDDINGS_SOURCE=openai
 EMBEDDING_KEY=sk-...
 ```
+</TabItem>
+<TabItem value="java" label="☕️ Java Spring Boot">
+
+To run semantic queries in Java, the application also needs to generate embeddings for your query.  
+This is handled by the [`EmbeddingProvider`](https://github.com/mongodb-developer/library-management-system/blob/java-server/java-server/src/main/java/com/mongodb/devrel/library/domain/provider/EmbeddingProvider.java) interface.   For OpenAI, the implementation is [`OpenAIEmbeddingProvider`](https://github.com/mongodb-developer/library-management-system/blob/java-server/java-server/src/main/java/com/mongodb/devrel/library/infrastructure/provider/OpenAIEmbeddingProvider.java), which delegates the HTTP call to the Feign client:
+
+
+```java title='src/main/java/com/mongodb/devrel/library/infrastructure/embeddings/openai/OpenAIEmbeddingClient.java'
+@FeignClient(
+    name = "openai-embeddings",
+    url = "${openai.base-url}",
+    configuration = OpenAIFeignInterceptor.class
+)
+public interface OpenAIEmbeddingClient {
+    @PostMapping(
+            value = "/v1/embeddings", 
+            consumes = "application/json", 
+            produces = "application/json"
+    )
+    OpenAIEmbeddingResponse createEmbeddings(@RequestBody OpenAIEmbeddingRequest request);
+}
+```
+
+## Configuring the application
+To use OpenAI, you only need to adjust two parameters in `application.yml`:
+
+```yml title='src/main/resources/application.yml'
+embeddings:
+  source: ${EMBEDDING_SOURCE}
+
+openai:
+  api-key: ${OPENAI_KEY:yourKey}
+```
+The `embeddings.source` property is what selects the provider at runtime.
+If you set it to openai, the OpenAI implementation will be used.
+
+You can either edit these values in application.yml, or export them as environment variables:
+```js
+export EMBEDDING_SOURCE=openai
+export OPENAI_KEY=sk-...
+```
+
+## Running the application
+Once the variables are set, start the application as usual:
+
+```
+mvn spring-boot:run
+```
+
+At the end, when the application starts, just make a call to `searchBooks` as
+described in the step [Add Semantic Search to Your Application](http://localhost:3000/search-lab/docs/vector-search/add-to-app) 
+and you will see the application calling the **OPENAI** implementation:
+<Screenshot src="/img/screenshots/7-vector-search/5-create-vectors/3-openai/4-checking-logs.png" url="https://cloud.google.com" />
+
+</TabItem>
+</Tabs>

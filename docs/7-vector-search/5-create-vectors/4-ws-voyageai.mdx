@@ -1,0 +1,89 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Using Voyage AI
+
+:::info
+Take-home activity! Do it if you are following along at home. It won't be covered during the hands-on lab.
+:::
+Voyage AI provides high‑quality embedding models you can use for semantic search. You’ll need an API key to call their Embeddings API.
+
+## Create a Voyage account and get an API key
+
+To get started with Voyage AI, go to [https://voyageai.com](https://voyageai.com) and create an account.
+
+<Screenshot src="img/screenshots/7-vector-search/5-create-vectors/5-voyage/1-create-account.png" url="https://www.voyageai.com/" alt="The Voyage AI page" />
+
+Once you’re logged in, navigate to your account dashboard and generate a new API key.
+<Screenshot src="img/screenshots/7-vector-search/5-create-vectors/5-voyage/2-create-key.png" url="https://dashboard.voyageai.com/organization/api-keys" alt="The Voyage AI API keys page" />
+
+This key will be required to call the Voyage Embeddings API. Make sure you copy and store it in a safe place, as you’ll need it later when configuring the application.
+<Screenshot src="img/screenshots/7-vector-search/5-create-vectors/5-voyage/3-store-api-key.png" url="https://dashboard.voyageai.com/organization/api-keys" alt="The Voyage AI API keys page" />
+
+## Create embeddings with cURL
+
+Once you have your API key, you can test the API directly using `curl`:
+
+```
+VOYAGE_API_KEY=<YOUR_API_KEY>
+
+curl --location 'https://api.voyageai.com/v1/embeddings' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer $VOYAGE_API_KEY' \
+--data '{ 
+    "input": "Some text ..",
+    "model": "voyage-3-large",    
+    "output_dimension": 2048
+}'
+```
+## Using Voyage AI in the application
+
+<Tabs groupId="server">
+<TabItem value="java" label="☕️ Java Spring Boot">
+To run semantic queries in Java, the application also needs to generate embeddings for your query.  
+This is handled by the [`EmbeddingProvider`](https://github.com/mongodb-developer/library-management-system/blob/java-server/java-server/src/main/java/com/mongodb/devrel/library/domain/provider/EmbeddingProvider.java) interface.  
+
+For Voyage AI, the implementation is [`VoyageAIEmbeddingProvider`](https://github.com/mongodb-developer/library-management-system/blob/java-server/java-server/src/main/java/com/mongodb/devrel/library/infrastructure/provider/VoyageAIEmbeddingProvider.java), which delegates the HTTP call to the Feign client:
+```java title='src/main/java/com/mongodb/devrel/library/infrastructure/embeddings/voyageai/VoyageEmbeddingsClient.java'
+@FeignClient(
+        name = "voyage",
+        url = "${voyage.base-url}",
+        configuration = VoyageFeignInterceptor.class
+)
+public interface VoyageEmbeddingsClient {
+  @PostMapping("/embeddings")
+  VoyageEmbeddingsResponse getEmbeddings(@RequestBody VoyageEmbeddingsRequest body);
+}
+```
+
+## Configuring the application
+
+To use Voyage AI, you only need to adjust a few parameters in `application.yml`:
+
+```yml title='src/main/resources/application.yml'
+embeddings:
+  source: ${EMBEDDING_SOURCE}
+voyage:
+  api-key: ${VOYAGE_KEY:yourKey}
+```
+
+The `embeddings.source` property is what selects the provider at runtime.
+If you set it to `voyage`, the Voyage AI implementation will be used. You can either edit these values in `application.yml`, or export them as environment variables:
+```
+export EMBEDDING_SOURCE=voyage
+export VOYAGE_KEY=pa-6r..
+```
+## Running the application
+Once the variables are set, start the application as usual:
+```
+mvn spring-boot:run
+```
+
+At the end, when the application starts, just make a call to `searchBooks` as
+described in the step [Add Semantic Search to Your Application](http://localhost:3000/search-lab/docs/vector-search/add-to-app) 
+and you will see the application calling the **Voyage AI** implementation:
+<Screenshot src="/img/screenshots/7-vector-search/5-create-vectors/5-voyage/4-checking-logs.png" url="https://cloud.google.com" />
+
+
+</TabItem>
+</Tabs>

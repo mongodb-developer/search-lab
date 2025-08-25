@@ -1,9 +1,13 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 # 👐 Add Semantic Search to Your Application
 
 You now know everything you need to add vector search capabilities to your application.
 
-## Configuring the vector search query
 
+<Tabs groupId="server">
+<TabItem value="node" label="🚀 NodeJS/Express">
 Open up the `BookController` in **server/src/controllers/books.ts** once more, and edit the `searchBooks` method to query your data for semantic search.
 
 :::tip
@@ -36,6 +40,38 @@ public async searchBooks(query: string): Promise<Book[]> {
 </div>
 </details>
 
+</TabItem>
+<TabItem value="java" label="☕️ Java Spring Boot">
+
+Open the `BookService` class in **/domain/service/BookService.java**, locate the `searchBooks(String theTerm)` method, and update it to use Vector Search for semantic queries.
+
+:::tip
+Use the `embeddingProvider.getEmbeddings` method to convert the query into a vector.
+:::
+<details>
+<summary>Answer</summary>
+<div>
+```java title='src/main/java/com/mongodb/devrel/library/domain/service/BookService.java'
+public List<Book> searchBooks(String theTerm) {
+    List<Double> vector = embeddingProvider.getEmbeddings(theTerm);
+
+    AggregationOperation searchStage = context ->
+            new Document("$vectorSearch",
+                    new Document("index", "vectorsearch")
+                            .append("path", "embeddings")
+                            .append("queryVector", vector)
+                            .append("numCandidates", 100)
+                            .append("limit", 10)
+     );
+
+    Aggregation aggregation = Aggregation.newAggregation(searchStage);
+    return mongoTemplate.aggregate(aggregation, "books", Book.class).getMappedResults();
+}
+```
+</div>
+</details>
+</TabItem>
+</Tabs>
 ## Testing the semantic search
 
 To test the semantic search in the app, try to search for some books but use different words that have a similar meaning or are related to the book's cover.

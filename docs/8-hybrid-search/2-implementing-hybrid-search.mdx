@@ -1,3 +1,6 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 # 🦸‍♂️ Implementing Hybrid Search
 
 :::info
@@ -14,13 +17,16 @@ This segment depends on the setup you have done in previous exercises:
 2. Ensure you have [imported the embeddings](https://mongodb-developer.github.io/search-lab/docs/vector-search/import-data). 
 3. Ensure you have [created the vector search index](https://mongodb-developer.github.io/search-lab/docs/vector-search/create-index) on the **embeddings** field.
 
-## Function for Full-Text Search
+## Function for Full-Text Search 
+
+<Tabs groupId="server">
+<TabItem value="node" label="🚀 NodeJS/Express">
 
 Write a new function called `fullTextSearch` in `books.ts`: 
 - It accepts ***query*** as an argument of **string** type, and ***limit*** as an argument of **number** type
-- Using ***query***, it should perform a full-text search on **title**, **synopsis**, and **author names**, and you may boost scores at your own discretion
-- It should limit the number of books returned using the **limit** argument parsed
-- Using `$project` to only return the following book properties: ***_id***, ***title***, ***authors***, ***synopsis***, and ***cover***
+- Using ***query***, it should perform a full-text search on `title`, `synopsis`, and `author` names, and you may boost scores at your own discretion
+- It should limit the number of books returned using the ***limit*** argument parsed
+- Using `$project` to only return the following book properties: `_id`, `title`, `authors`, `synopsis`, and `cover`
 
 <details>
 <summary>Answer</summary>
@@ -73,14 +79,67 @@ Write a new function called `fullTextSearch` in `books.ts`:
 ```
 </div>
 </details>
+</TabItem>
+<TabItem value="java" label="☕️ Java Spring Boot">
+Write a new method called `fullTextSearch` in `BookService.java`:
 
+- It accepts ***query*** as a *String* argument, and ***limit*** as an **int** argument
+
+- Uing **query**, it should perform a full-text search on `title`, `synopsis`, and `author` names, applying score boosts where appropriate
+
+- It should limit the number of books returned using the ***limit*** argument
+
+- Use `$project` to only return the following book properties: `_id`, `title`, `authors`, `synopsis`, and `cover`
+<details>
+<summary>Answer</summary>
+<div>
+```java title='src/main/java/com/mongodb/devrel/library/domain/service/BookService.java'
+public List<Book> fullTextSearch(String query, int limit) {
+    AggregationOperation searchStage = context -> new Document("$search",
+        new Document("index", "fulltextsearch")
+            .append("compound",
+                new Document("should", Arrays.asList(
+                    new Document("text",
+                        new Document("query", query)
+                            .append("path", "title")
+                            .append("score", new Document("boost", new Document("value", 3L)))),
+                    new Document("text",
+                        new Document("query", query)
+                            .append("path", "synopsis")
+                            .append("score", new Document("boost", new Document("value", 2L)))),
+                    new Document("text",
+                        new Document("query", query)
+                            .append("path", "authors.name")
+                            .append("score", new Document("boost", new Document("value", 2L))))
+                ))
+            )
+    );
+    AggregationOperation limitStage = context -> new Document("$limit", limit);
+    AggregationOperation projectStage = context -> new Document("$project",
+        new Document("title", 1L)
+            .append("authors", 1L)
+            .append("synopsis", 1L)
+            .append("cover", 1L)
+    );
+    Aggregation aggregation = Aggregation.newAggregation(searchStage, limitStage, projectStage);
+    return mongoTemplate.aggregate(aggregation, "books", Book.class).getMappedResults();
+}
+ 
+```
+</div>
+</details>
+</TabItem>
+</Tabs>
 ## Function for Vector Search
+
+<Tabs groupId="server">
+<TabItem value="node" label="🚀 NodeJS/Express">
 
 Write a new function called `vectorSearch` in `books.ts`: 
 - It accepts ***query*** as an argument of **string** type, and ***limit*** as an argument of **number** type
 - It should vectorize the ***query*** and use resulting vector to perform a vector search on **books** collection.
 - It should limit the number of books returned using the **limit** argument parsed
-- Using `$project` to only return the following book properties: ***_id***, ***title***, ***authors***, ***synopsis***, and ***cover***
+- Using `$project` to only return the following book properties: `_id`, `title`, `authors`, `synopsis`, and `cover``
 
 <details>
 <summary>Answer</summary>
@@ -113,6 +172,55 @@ Write a new function called `vectorSearch` in `books.ts`:
 </details>
 
 
+</TabItem>
+<TabItem value="java" label="☕️ Java Spring Boot">
+Write a new method called `vectorSearch` in `BookService.java`:
+
+- It accepts ***query*** as a **String** argument, and ***limit*** as an **int** argument
+
+- It should vectorize ***query*** using the configured `EmbeddingProvider`
+and use the resulting vector to perform a `$vectorSearch` on the books collection
+
+- It should limit the number of books returned using the ***limit*** argument
+
+- Use `$project` to only return the following book properties: `_id`, `title`, `authors`, `synopsis`, and `cover`
+
+<details>
+<summary>Answer</summary>
+<div>
+```java title='src/main/java/com/mongodb/devrel/library/domain/service/BookService.java'
+public List<Book> vectorSearch(String query, int limit) {
+    List<Double> vector = embeddingProvider.getEmbeddings(query);
+
+    AggregationOperation searchStage = context ->
+            new Document("$vectorSearch",
+                    new Document("index", "vectorsearch")
+                            .append("path", "embeddings")
+                            .append("queryVector", vector)
+                            .append("numCandidates", 100)
+                            .append("limit", limit)
+            );
+
+    AggregationOperation projectStage = context ->
+            new Document("$project",
+                    new Document("title", 1L)
+                            .append("authors", 1L)
+                            .append("synopsis", 1L)
+                            .append("cover", 1L)
+            );
+
+    Aggregation aggregation = Aggregation.newAggregation(searchStage, projectStage);
+
+    return mongoTemplate.aggregate(aggregation, "books", Book.class).getMappedResults();
+}
+```
+</div>
+</details>
+
+</TabItem>
+</Tabs>
+
+
 ## Function to compute Weighted [Reciprocal Rank Fusion](https://www.mongodb.com/docs/atlas/atlas-vector-search/tutorials/reciprocal-rank-fusion/#what-is-reciprocal-rank-fusion-)
 
 Atlas full-text search and vector search, by default, returns documents sorted by their relevancy score from highest to lowest i.e. they are ranked by default.
@@ -120,6 +228,9 @@ Atlas full-text search and vector search, by default, returns documents sorted b
 A reciprocal rank score is given by `1 / (RANK * RANK_CONSTANT)`. A **RANK_CONSTANT** (typically about 60), prevents the case of `1/0` where **RANK** is 0, and smoothens the scores so that it is not too heavily skewed towards higher ranked documents.
 
 You may give different weightage to full-text search versus vector search by multiplying the scores with a different weight.
+
+<Tabs groupId="server">
+<TabItem value="node" label="🚀 NodeJS/Express">
 
 Write a new private function called `computeWeightedRRF` in `books.ts`: 
 
@@ -143,9 +254,58 @@ Write a new private function called `computeWeightedRRF` in `books.ts`:
 </div>
 </details>
 
+</TabItem>
+<TabItem value="java" label="☕️ Java Spring Boot">
+In Java, the Book entity is defined as an immutable record mapped to the database.
+Because of this, we cannot simply add or modify a field such as score at runtime.
+To handle the computation of scores for Hybrid Search, we need two things:
+- A new wrapper type to hold both the `Book` and its computed score.
+- A helper method that calculates the Reciprocal Rank score and returns this wrapper.
+
+First, create a new `BookWithScore` record:
+<details>
+<summary>Answer</summary>
+<div>
+```java title='src/main/java/com/mongodb/devrel/library/domain/model/BookWithScore.java'
+public record BookWithScore(Book book, double score) {}
+```
+</div>
+</details>
+
+Then, add a private method `computeWeightedRRF` in `BookService.java`:
+<details>
+<summary>Answer</summary>
+<div>
+```java title='src/main/java/com/mongodb/devrel/library/domain/service/BookService.java'
+private List<BookWithScore> computeWeightedRRF(List<Book> books, double weight) {
+    final int RANK_CONSTANT = 60;
+    List<BookWithScore> scoredBooks = new ArrayList<>();
+
+    for (int i = 0; i < books.size(); i++) {
+        Book book = books.get(i);
+        double score = weight * (1.0 / (i + RANK_CONSTANT));
+        scoredBooks.add(new BookWithScore(book, score));
+    }
+
+    return scoredBooks;
+}
+```
+</div>
+</details>
+- It accepts books as a `List<Book>` argument, and weight as a double argument
+- It computes the Reciprocal Rank score based on each book’s position in the list (the first book has rank 0)
+- It multiplies the `score` by the given weight
+- It returns a list of `BookWithScore` objects
+
+</TabItem>
+</Tabs>
+
 ## Function to perform Hybrid Search
 The final thing we need to do is to combine the scores by summing the scores from both types of searches. 
 If the same book is found in two searches, the score should be summed up giving it a higher score.
+
+<Tabs groupId="server">
+<TabItem value="node" label="🚀 NodeJS/Express">
 
 Replace the `searchBooks` function in `books.ts`:
 - It accepts ***query*** as an argument of **string** type
@@ -193,5 +353,50 @@ Replace the `searchBooks` function in `books.ts`:
 ```
 </div>
 </details>
+</TabItem>
+<TabItem value="java" label="☕️ Java Spring Boot">
 
+Replace the searchBook methods in BookService.java:
+
+- It accepts ***theTerm*** as a **String** argument
+- It should execute both full-text search and vector search using the given ***query***
+- It should pass both result sets into `computeWeightedRRF`. Let’s give full-text search a weight of 0.4 and vector search a weight of 0.6
+- It should combine the results into a map keyed by book `_id`, summing the scores if the same book appears in both searches
+- It should return the top 5–6 books sorted by score in descending order
+<details>
+<summary>Answer</summary>
+<div>
+```java title='src/main/java/com/mongodb/devrel/library/domain/service/BookService.java'
+public List<Book> searchBooks(String theTerm) {
+    final double VECTOR_WEIGHT = 0.6;
+    final double FULL_TEXT_WEIGHT = 0.4;
+    final int SEARCH_LIMIT = 6;
+
+    List<Book> ftsResults = fullTextSearch(theTerm, SEARCH_LIMIT);
+    List<Book> vsResults = vectorSearch(theTerm, SEARCH_LIMIT);
+
+    List<BookWithScore> scoredFts = computeWeightedRRF(ftsResults, FULL_TEXT_WEIGHT);
+    List<BookWithScore> scoredVs = computeWeightedRRF(vsResults, VECTOR_WEIGHT);
+
+    Map<String, Double> scoreMap = new HashMap<>();
+    Map<String, Book> bookMap = new HashMap<>();
+
+    Stream.concat(scoredFts.stream(), scoredVs.stream())
+            .forEach(bws -> {
+                String id = bws.book().id();
+                bookMap.putIfAbsent(id, bws.book());
+                scoreMap.merge(id, bws.score(), Double::sum);
+            });
+
+    return scoreMap.entrySet().stream()
+            .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
+            .limit(SEARCH_LIMIT)
+            .map(entry -> bookMap.get(entry.getKey()))
+            .toList();
+}
+```
+</div>
+</details>
+</TabItem>
+</Tabs>
 

@@ -1,4 +1,7 @@
-# Using Google Cloud Vertex AI
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Using Google Cloud Vertex AI 
 
 :::info
 Take-home activity! Do it if you are following along at home. It won't be covered during the hands-on lab.
@@ -125,6 +128,9 @@ To query the data, Vector Search will need to calculate the distance between the
 
 To do so, you will need to vectorize your query. You can use the same function to vectorize your query, as well.
 
+<Tabs groupId="server">
+<TabItem value="node" label="🚀 NodeJS/Express">
+
 In the library application, we've created a function that will vectorize your query for you. You can find it in the `server/embeddings/googleVertex.mjs` file.
 
 ```js
@@ -183,3 +189,63 @@ PROJECT_LOCATION=us-central1
 ```
 
 Your application now has a `getTermEmbeddings` function that will return the embeddings for a given text. You can see the details of this file in the `server/src/embeddings/googleVertex.js` file.
+</TabItem>
+<TabItem value="java" label="☕️ Java Spring Boot">
+To run semantic queries in Java, the application also needs to generate embeddings for your query.  
+This is handled by the [`EmbeddingProvider`](https://github.com/mongodb-developer/library-management-system/blob/java-server/java-server/src/main/java/com/mongodb/devrel/library/domain/provider/EmbeddingProvider.java) interface.
+
+For Google Vertex AI, the implementation is [`VertexEmbeddingProvider`](https://github.com/mongodb-developer/library-management-system/blob/java-server/java-server/src/main/java/com/mongodb/devrel/library/infrastructure/provider/VertexEmbeddingProvider.java), which delegates the HTTP call to the Feign client:
+```java title='src/main/java/com/mongodb/devrel/library/infrastructure/embeddings/vertex/VertexEmbeddingClient.java'
+@FeignClient(
+        name = "vertex-embeddings",
+        url = "${vertex.base-url}"
+)
+public interface VertexEmbeddingClient {
+
+    @PostMapping(
+            value = "/v1/projects/{projectId}/locations/us-central1/publishers/google/models/{model}:predict",
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    VertexEmbeddingResponse predict(
+            @RequestHeader("Authorization") String bearerToken,
+            @PathVariable("projectId") String projectId,
+            @PathVariable("model") String model,
+            @RequestBody VertexEmbeddingRequest request
+    );
+}
+
+```
+
+## Configuring the application
+
+To use Google Vertex AI, adjust the following parameters in `application.yml`:
+```yml title='src/main/resources/application.yml'
+embeddings:
+  source: ${EMBEDDING_SOURCE}
+vertex:
+  project-id: ${VERTEX_PROJECT_ID:yourProjectId}
+  api-key: ${VERTEX_KEY:yourKey}
+```
+
+The `embeddings.source` property is what selects the provider at runtime. If you set it to googleVertex, the Vertex implementation will be used. You can either edit these values in `application.yml`, or export them as environment variables:
+
+```
+export EMBEDDING_SOURCE=googleVertex
+export VERTEX_PROJECT_ID=<YOUR_PROJECT_ID>
+export VERTEX_KEY=<YOUR_KEY> 
+```
+
+## Running the application
+
+Once the variables are set, start the application as usual:
+```
+mvn spring-boot:run
+```
+
+At the end, when the application starts, just make a call to `searchBooks` as
+described in the step [Add Semantic Search to Your Application](http://localhost:3000/search-lab/docs/vector-search/add-to-app) 
+and you will see the application calling the **Google Vertex** implementation:
+<Screenshot src="/img/screenshots/7-vector-search/5-create-vectors/4-google-vertex/3-checking-logs.png" url="https://cloud.google.com" />
+
+
+</TabItem>
+</Tabs>
