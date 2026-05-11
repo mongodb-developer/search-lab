@@ -1,0 +1,15 @@
+# 📘 为什么选择 MongoDB Search
+
+MongoDB Search 是 MongoDB 的内置搜索解决方案。它是一种完全托管的服务，易于设置、操作和扩展。MongoDB Search 基于 Apache Lucene，并支持 Apache Lucene 查询解析器语法。它支持文本搜索、地理位置搜索和分面（facet）搜索。
+
+![MongoDB Search](/img/1-full-text-search/2-atlas-search.png)
+
+使用 MongoDB Search，无需在 MongoDB 和第三方工具之间同步数据。MongoDB Search 是一种完全托管的服务，易于设置、操作和扩展。它建立在 MongoDB 查询引擎之上，因此始终与最新的 MongoDB 功能保持同步，并允许你使用 MongoDB 查询语言来搜索数据。
+
+此外，MongoDB Search 与 MongoDB 完全集成，因此你可以轻松地从 UI 创建和管理你的搜索索引。
+
+## 如何使用 MongoDB Search
+
+要使用 MongoDB Search，你需要创建一个搜索索引。搜索索引是一种包含你想要搜索的数据和搜索规则的数据结构。你可以使用 MongoDB UI 或 MongoDB API 创建搜索索引。
+
+一旦创建了索引，你就可以使用 MongoDB 查询 API 来查询数据。这将通过聚合管道中的新 `$search` 操作符来完成。
