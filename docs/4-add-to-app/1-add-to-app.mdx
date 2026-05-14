@@ -77,7 +77,7 @@ public List<Book> searchBooks(String theTerm) {
 }
 ```
 
-While this code works to some extent, it is not optimal. As the dataset grows, performance will degrade because the search is not using the dedicated Atlas Search index. It also limits the query to very basic text matching. Change this method to use the **$search** stage in the aggregation pipeline instead.
+While this code works to some extent, it is not optimal. As the dataset grows, performance will degrade because the search is not using the dedicated MongoDB Search index. It also limits the query to very basic text matching. Change this method to use the **$search** stage in the aggregation pipeline instead.
 Your search should cover:
 
 - the `title`

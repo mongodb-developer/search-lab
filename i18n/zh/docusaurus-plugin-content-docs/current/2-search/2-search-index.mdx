@@ -1,8 +1,8 @@
-# 👐 创建一个 Atlas Search 索引
+# 👐 创建一个 MongoDB Search 索引
 
-要开始使用 Atlas Search，你必须在数据库上配置一个搜索索引。Atlas Search 索引以易于搜索的格式分类数据，并通过特定标识符实现更快的文档检索。你可以直接从 Atlas UI 创建搜索索引。
+要开始使用 MongoDB Search，你必须在数据库上配置一个搜索索引。MongoDB Search 索引以易于搜索的格式分类数据，并通过特定标识符实现更快的文档检索。你可以直接从 Atlas UI 创建搜索索引。
 
-## 创建第一个 Atlas Search 索引的分步指南
+## 创建第一个 MongoDB Search 索引的分步指南
 
 打开 MongoDB Atlas 中的 **Clusters** 页面，然后在右下角选择 **Create Index**。
 
@@ -32,7 +32,7 @@
 
 :::info
 该索引使用动态字段映射。我们没有在文档和搜索索引之间配置任何明确（静态）的映射。这就是为什么 Atlas 创建了动态映射，将文档中的数据匹配到一些常见字段类型，如 `double`、`string`、`array` 和 `int`。
-动态映射在你刚开始使用 Atlas Search 或你的模式经常变化时非常有用。然而，与静态映射相比，它们占用更多空间。
+动态映射在你刚开始使用 MongoDB Search 或你的模式经常变化时非常有用。然而，与静态映射相比，它们占用更多空间。
 :::
 
 你不需要改进此索引。继续点击 **Create Search Index**。
