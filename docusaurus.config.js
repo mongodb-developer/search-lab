@@ -10,7 +10,7 @@ const organizationName = "mongodb-developer";
 
 // Main page config
 const title = "Creating Compelling Search Experiences";
-const tagLine = "A Lab by MongoDB to help you build a search experience with MongoDB Atlas Search";
+const tagLine = "A Lab by MongoDB to help you build a search experience with MongoDB MongoDB Search";
 const startButtonTitle = "Enter The Search Party";
 const favicon = "img/favicon.svg"
 

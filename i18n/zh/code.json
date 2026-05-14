@@ -4,7 +4,7 @@
     "description": "The title of the home page"
   },
   "homepage.subtitle": {
-    "message": "由 MongoDB 提供实验环境，帮助您使用 MongoDB Atlas Search 构建搜索功能",
+    "message": "由 MongoDB 提供实验环境，帮助您使用 MongoDB MongoDB Search 构建搜索功能",
     "description": "The subtitle of the home page"
   },
   "homepage.startButtonTitle": {

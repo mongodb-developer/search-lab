@@ -1,8 +1,8 @@
-# 👐 Create an Atlas Search Index
+# 👐 Create an MongoDB Search Index
 
-To start using Atlas Search, you must configure a search index on your database. Atlas Search indexes categorized data in an easily searchable format and enable faster document retrieval using certain identifiers. You can create a search index right from the Atlas UI.
+To start using MongoDB Search, you must configure a search index on your database. MongoDB Search indexes categorized data in an easily searchable format and enable faster document retrieval using certain identifiers. You can create a search index right from the Atlas UI.
 
-## Step-by-step guide to creating your first Atlas Search index
+## Step-by-step guide to creating your first MongoDB Search index
 
 Open the **Clusters** page in MongoDB Atlas and select **Create Index** in the lower right corner under your cluster.
 
@@ -32,7 +32,7 @@ The final step allows you to review the index configuration and refine it if nee
 
 :::info
 The index is using dynamic field mappings. We didn't configure any explicit (static) mappings between the fields in the documents and the search index. That's why Atlas created dynamic mappings that match the data in the documents to some common field types such as `double`, `string`, `array`, `int`, and `double`.
-Dynamic mappings are useful when you're just getting started with Atlas Search or if your schema changes regularly. However, they take up more space compared to static mappings.
+Dynamic mappings are useful when you're just getting started with MongoDB Search or if your schema changes regularly. However, they take up more space compared to static mappings.
 :::
 
 You don't need to refine this index. Go ahead and click **Create Search Index**.

@@ -27,13 +27,13 @@
     "message": "在本节中，您将学习如何使用 MongoDB 的查询语言查询数据。",
     "description": "The generated-index page description for category Aggregation pipelines in sidebar tutorialSidebar"
   },
-  "sidebar.tutorialSidebar.category.Implementing Atlas Search": {
+  "sidebar.tutorialSidebar.category.Implementing MongoDB Search": {
     "message": "实现 Atlas 搜索",
-    "description": "The label for category Implementing Atlas Search in sidebar tutorialSidebar"
+    "description": "The label for category Implementing MongoDB Search in sidebar tutorialSidebar"
   },
-  "sidebar.tutorialSidebar.category.Implementing Atlas Search.link.generated-index.description": {
+  "sidebar.tutorialSidebar.category.Implementing MongoDB Search.link.generated-index.description": {
     "message": "在本节中，您将学习如何为应用程序添加全文搜索功能。",
-    "description": "The generated-index page description for category Implementing Atlas Search in sidebar tutorialSidebar"
+    "description": "The generated-index page description for category Implementing MongoDB Search in sidebar tutorialSidebar"
   },
   "sidebar.tutorialSidebar.category.Search Operators": {
     "message": "搜索操作符",
@@ -48,7 +48,7 @@
     "description": "The label for category Faceting in sidebar tutorialSidebar"
   },
   "sidebar.tutorialSidebar.category.Faceting.link.generated-index.description": {
-    "message": "在本节中，您将了解如何使用 MongoDB Atlas Search 进行分面搜索。",
+    "message": "在本节中，您将了解如何使用 MongoDB MongoDB Search 进行分面搜索。",
     "description": "The generated-index page description for category Faceting in sidebar tutorialSidebar"
   },
   "sidebar.tutorialSidebar.category.Vector Search": {
@@ -56,7 +56,7 @@
     "description": "The label for category Vector Search in sidebar tutorialSidebar"
   },
   "sidebar.tutorialSidebar.category.Vector Search.link.generated-index.description": {
-    "message": "在本节中，您将学习如何使用 Atlas Search 创建向量搜索索引。",
+    "message": "在本节中，您将学习如何使用 MongoDB Search 创建向量搜索索引。",
     "description": "The generated-index page description for category Vector Search in sidebar tutorialSidebar"
   },
   "sidebar.tutorialSidebar.category.🏡 Create Vectors": {
@@ -72,7 +72,7 @@
     "description": "The label for category Hybrid Search in sidebar tutorialSidebar"
   },
   "sidebar.tutorialSidebar.category.Hybrid Search.link.generated-index.description": {
-    "message": "In this section, you'll learn how to leverage a hybrid approach to search indexes with Atlas Vector Search and Atlas Search.",
+    "message": "In this section, you'll learn how to leverage a hybrid approach to search indexes with MongoDB Vector Search and MongoDB Search.",
     "description": "The generated-index page description for category Hybrid Search in sidebar tutorialSidebar"
   }
 }
