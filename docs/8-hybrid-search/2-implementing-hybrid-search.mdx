@@ -223,7 +223,7 @@ public List<Book> vectorSearch(String query, int limit) {
 
 ## Function to compute Weighted [Reciprocal Rank Fusion](https://www.mongodb.com/docs/atlas/atlas-vector-search/tutorials/reciprocal-rank-fusion/#what-is-reciprocal-rank-fusion-)
 
-Atlas full-text search and vector search, by default, returns documents sorted by their relevancy score from highest to lowest i.e. they are ranked by default.
+MongoDB Search and MongoDB Vector Search, by default, return documents sorted by their relevancy score from highest to lowest, i.e. they are ranked by default.
 
 A reciprocal rank score is given by `1 / (RANK * RANK_CONSTANT)`. A **RANK_CONSTANT** (typically about 60), prevents the case of `1/0` where **RANK** is 0, and smoothens the scores so that it is not too heavily skewed towards higher ranked documents.
 
