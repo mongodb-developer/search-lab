@@ -48,7 +48,7 @@
     "description": "The label for category Faceting in sidebar tutorialSidebar"
   },
   "sidebar.tutorialSidebar.category.Faceting.link.generated-index.description": {
-    "message": "在本节中，您将了解如何使用 MongoDB MongoDB Search 进行分面搜索。",
+    "message": "在本节中，您将了解如何使用 MongoDB Search 进行分面搜索。",
     "description": "The generated-index page description for category Faceting in sidebar tutorialSidebar"
   },
   "sidebar.tutorialSidebar.category.Vector Search": {
