@@ -1,8 +1,0 @@
-{
-    "label": "分面搜索",
-    "position": 7,
-    "link": {
-        "type": "generated-index",
-        "description": "在本节中，您将了解如何使用 MongoDB Search 进行分面搜索。"
-    }
-}

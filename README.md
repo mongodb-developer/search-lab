@@ -1,28 +1,9 @@
-[![.github/workflows/deploy.yml](https://github.com/mongodb-developer/search-lab/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/mongodb-developer/search-lab/actions/workflows/deploy.yml)
+# MongoDB Search Lab
 
-# Developer Days Search Lab
+This lab has moved to [mdb.link/instruqt-search-lab](https://mdb.link/instruqt-search-lab).
 
-This is the Search Lab used during Developer Days that covers using MongoDB Search and Vector Search
-
-You can access the online version on the Search Lab [here](https://mongodb-developer.github.io/search-lab/)
-
-## Running the Lab Locally
-
-If you want to run the lab locally, you can start by cloning the repository or downloading the code. You will need to have [Node.js](https://nodejs.org/en/) installed.
-
-Once you have the code, you can run the following commands to install the dependencies and start the server:
-
-```
-npm install
-npm start
-```
-
-You can then access the lab at http://localhost:3000
-
-## Contributing
-
-If you find any issues with the lab, please open an issue or submit a pull request.
+This repository hosts a redirect page with links to official MongoDB Search, Vector Search, and Hybrid Search documentation.
 
 ## License
 
-This project is licensed under the Apache 2.0 License - see the [LICENSE](LICENSE) file for details
+This project is licensed under the Apache 2.0 License - see the [LICENSE](LICENSE) file for details.
